@@ -3,13 +3,13 @@ import logo from "../images/header__logo.svg";
 import { Link, Route } from "react-router-dom";
 
 function Header({ loggedIn, userEmail, onSignOut }) {
-  const [isMenu, setIsMenu] = React.useState(false);
+  const [isMenuOpened, setIsMenuOpened] = React.useState(false);
   const menuButtonClassName = `menu__button ${
-    isMenu ? "menu__button-close" : "menu__button"
+    isMenuOpened ? "menu__button-close" : "menu__button"
   }`;
-  const menuClassName = `menu ${isMenu && "menu_active"}`;
+  const menuClassName = `menu ${isMenuOpened && "menu_active"}`;
   const toggleButtonMenu = () => {
-    setIsMenu(!isMenu);
+    setIsMenuOpened(!isMenuOpened);
   };
   return (
     <header className="header">
@@ -24,7 +24,7 @@ function Header({ loggedIn, userEmail, onSignOut }) {
           </div>
           <nav className={menuClassName}>
             <p className="header__email">{userEmail}</p>
-            <h2 onClick={onSignOut} className="header__link" type="button">
+            <h2 onClick={onSignOut} className="header__link">
               Выйти
             </h2>
           </nav>

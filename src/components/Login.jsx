@@ -28,7 +28,6 @@ const Login = ({ onLogin }) => {
         <input
           className="form__container form__container_auth"
           id="email"
-          required
           name="email"
           type="email"
           value={inputs.email}
@@ -39,7 +38,6 @@ const Login = ({ onLogin }) => {
         <input
           className="form__container form__container_auth"
           id="password"
-          required
           name="password"
           type="password"
           value={inputs.password}

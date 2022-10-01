@@ -41,7 +41,7 @@ const Main = ({
           onClick={onAddPlace}
         ></button>
       </section>
-      <template className="elements" id="card">
+      <div className="elements" id="card">
         {cards.map(card => {
           return (
             <Card
@@ -56,7 +56,7 @@ const Main = ({
             />
           );
         })}
-      </template>
+      </div>
     </main>
   );
 };

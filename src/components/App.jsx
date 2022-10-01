@@ -24,7 +24,7 @@ function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(
     false
   );
-  const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(null);
+  const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
@@ -34,28 +34,15 @@ function App() {
     false
   );
   const [userEmail, setUserEmail] = React.useState("");
-  const [mobailOpen, setMobailOpen] = React.useState(false);
   const history = useHistory();
 
   React.useEffect(() => {
     if (loggedIn) {
-      api
-        .getUserInfo()
-        .then(data => {
-          setCurrentUser(data);
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
-  }, [loggedIn]);
-
-  React.useEffect(() => {
-    if (loggedIn) {
-      api
-        .getInitialCards()
-        .then(cards => {
+      Promise.all([api.getInitialCards(), api.getUserInfo()])
+        .then(result => {
+          const [cards, data] = result;
           setCards(cards);
+          setCurrentUser(data);
         })
         .catch(err => {
           console.log(err);
@@ -80,7 +67,7 @@ function App() {
     setIsAddPlacePopupOpen(true);
   };
 
-  const closeAllPopup = () => {
+  const closeAllPopups = () => {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsImagePopupOpen(false);
@@ -94,7 +81,7 @@ function App() {
       .setUserAvatar(avatar)
       .then(data => {
         setCurrentUser(data);
-        closeAllPopup();
+        closeAllPopups();
       })
       .catch(err => {
         console.log(err);
@@ -106,7 +93,7 @@ function App() {
       .addCard(name, link)
       .then(newCard => {
         setCards([newCard, ...cards]);
-        closeAllPopup();
+        closeAllPopups();
       })
       .catch(err => {
         console.log(err);
@@ -118,7 +105,7 @@ function App() {
       .editUserInfo(name, about)
       .then(data => {
         setCurrentUser(data);
-        closeAllPopup();
+        closeAllPopups();
       })
       .catch(err => {
         console.log(err);
@@ -169,13 +156,10 @@ function App() {
     auth
       .authorize(email, password)
       .then(res => {
-        if (res) {
-          setLoggedIn(true);
-          setMobailOpen(false);
-          localStorage.setItem("jwt", res.token);
-          setUserEmail(email);
-          history.push("/");
-        }
+        setLoggedIn(true);
+        localStorage.setItem("jwt", res.token);
+        setUserEmail(email);
+        history.push("/");
       })
       .catch(err => {
         setIsSuccess(false);
@@ -191,12 +175,12 @@ function App() {
   };
 
   React.useEffect(() => {
-    const jwt = localStorage.getItem("jwt");
-    if (jwt) {
+    if (localStorage.getItem("jwt")) {
+      const jwt = localStorage.getItem("jwt");
       auth
-        .checkToken(jwt)
-        .then(response => {
-          setUserEmail(response.data.email);
+        .checkToken(jwt, "jwt")
+        .then(res => {
+          setUserEmail(res.data.email);
           setLoggedIn(true);
           history.push("/");
         })
@@ -204,13 +188,7 @@ function App() {
           console.log(err);
         });
     }
-  }, [loggedIn, history]);
-
-  const handleClickMobail = () => {
-    if (loggedIn) {
-      setMobailOpen(!mobailOpen);
-    }
-  };
+  }, [history]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -219,8 +197,6 @@ function App() {
           loggedIn={loggedIn}
           userEmail={userEmail}
           onSignOut={handleSignOut}
-          mobailOpen={mobailOpen}
-          handleClickMobail={handleClickMobail}
         />
         <Switch>
           <ProtectedRoute
@@ -248,29 +224,29 @@ function App() {
         </Switch>
         <Footer />
         <AddPlacePopup
-          onClose={closeAllPopup}
+          onClose={closeAllPopups}
           isOpen={isAddPlacePopupOpen}
           onAddPlace={handleAddPlaceSubmit}
         />
         <EditProfilePopup
-          onClose={closeAllPopup}
+          onClose={closeAllPopups}
           isOpen={isEditProfilePopupOpen}
           onUpdateProfile={handleProfileSubmit}
         />
         <EditAvatarPopup
-          onClose={closeAllPopup}
+          onClose={closeAllPopups}
           isOpen={isEditAvatarPopupOpen}
           onUpdateAvatar={handleUpdateAvatar}
         />
         <ImagePopup
-          onClose={closeAllPopup}
+          onClose={closeAllPopups}
           card={selectedCard}
           isOpen={isImagePopupOpen}
         />
         <InfoTooltip
           isOpen={isInfoTooltipPopupOpen}
           isSuccess={isSuccess}
-          onClose={closeAllPopup}
+          onClose={closeAllPopups}
         />
       </div>
     </CurrentUserContext.Provider>

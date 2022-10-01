@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Register = ({ onRegister }) => {
   const [state, setState] = React.useState({
@@ -56,9 +57,9 @@ const Register = ({ onRegister }) => {
         </button>
         <p className="popup__text">
           Уже зарегистрировались?
-          <a className="popup__text-link" href="/sign-in">
+          <Link className="popup__text-link" to="/sign-in">
             Войти
-          </a>
+          </Link>
         </p>
       </form>
     </div>
